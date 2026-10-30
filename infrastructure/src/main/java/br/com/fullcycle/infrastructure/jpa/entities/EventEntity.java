@@ -27,6 +27,9 @@ public class EventEntity {
 
     private UUID partnerId;
 
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean cancelled;
+
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "event")
     private Set<EventTicketEntity> tickets;
 
@@ -52,6 +55,7 @@ public class EventEntity {
                 UUID.fromString(event.partnerId().value())
         );
 
+        entity.cancelled = event.cancelled();
         event.allTickets().forEach(entity::addTicket);
 
         return entity;
@@ -66,7 +70,8 @@ public class EventEntity {
                 this.partnerId().toString(),
                 this.tickets().stream()
                         .map(EventTicketEntity::toEventTicket)
-                        .collect(Collectors.toSet())
+                        .collect(Collectors.toSet()),
+                this.cancelled
         );
     }
 

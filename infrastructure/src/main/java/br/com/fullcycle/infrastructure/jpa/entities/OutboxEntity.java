@@ -5,6 +5,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -18,6 +20,7 @@ public class OutboxEntity {
     private UUID id;
 
     @Column(columnDefinition = "JSON", length = 4_000)
+    @JdbcTypeCode(SqlTypes.JSON)
     private String content;
 
     private boolean published;
