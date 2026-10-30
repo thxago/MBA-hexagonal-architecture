@@ -26,6 +26,7 @@ public class Event {
     private LocalDate date;
     private int totalSpots;
     private PartnerId partnerId;
+    private boolean cancelled;
 
     public Event(
             final EventId eventId,
@@ -64,10 +65,37 @@ public class Event {
             final String partnerId,
             final Set<EventTicket> tickets
     ) {
-        return new Event(EventId.with(id), name, date, totalSpots, PartnerId.with(partnerId), tickets);
+        return restore(id, name, date, totalSpots, partnerId, tickets, false);
+    }
+
+    public static Event restore(
+            final String id,
+            final String name,
+            final String date,
+            final int totalSpots,
+            final String partnerId,
+            final Set<EventTicket> tickets,
+            final boolean cancelled
+    ) {
+        final var event = new Event(EventId.with(id), name, date, totalSpots, PartnerId.with(partnerId), tickets);
+        event.cancelled = cancelled;
+        return event;
+    }
+
+    public void cancel() {
+        if (cancelled()) {
+            throw new ValidationException("Event already cancelled");
+        }
+
+        this.cancelled = true;
+        this.domainEvents.add(new EventCancelled(eventId()));
     }
 
     public EventTicket reserveTicket(final CustomerId aCustomerId) {
+        if (cancelled()) {
+            throw new ValidationException("Event is cancelled");
+        }
+
         this.allTickets().stream()
                 .filter(it -> Objects.equals(it.customerId(), aCustomerId))
                 .findFirst()
@@ -106,6 +134,10 @@ public class Event {
 
     public PartnerId partnerId() {
         return partnerId;
+    }
+
+    public boolean cancelled() {
+        return cancelled;
     }
 
     public Set<EventTicket> allTickets() {
