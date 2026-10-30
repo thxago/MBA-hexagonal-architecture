@@ -50,6 +50,10 @@ public class Ticket {
         return aTicket;
     }
 
+    public void cancel() {
+        this.status = TicketStatus.CANCELLED;
+    }
+
     public TicketId ticketId() {
         return ticketId;
     }
